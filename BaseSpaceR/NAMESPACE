@@ -1,0 +1,36 @@
+##useDynLib(BaseSpaceR)
+
+import(methods)
+importFrom(utils, packageVersion)
+
+exportClasses(ServiceURI,
+              AppAuth, AppSession)
+
+export(## Non-generic functions:
+       ## misc.R
+
+       ## ServiceURI.R
+       ServiceURI,
+
+       ## AppAuth.R
+       AppAuth,
+       
+       ## Generic functions:
+       uri, GET, POST,
+       initializeAuth, requestAccessToken,
+       listUsers, listGenomes,
+       listRuns, listProjects, createProject,
+       listFiles, getFiles
+)
+
+exportMethods(
+              ## Methods for generics
+              uri, GET, POST,
+              initializeAuth, requestAccessToken,
+              listUsers, listGenomes,
+              listRuns, listProjects, createProject,
+              listFiles, getFiles,
+              
+              show
+              ##  lapply
+)

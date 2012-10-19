@@ -1,0 +1,27 @@
+CHANGES IN VERSION 0.1.0
+-------------------------
+
+NEW FEATURES
+
+    o Add ...
+
+    o Add ...
+
+    o foo() now works on 
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o xxx....
+
+DEPRECATED AND DEFUNCT
+
+   o ....
+
+   o Remove defunct foo().
+
+BUG FIXES
+
+   o foo() on a ...
+
+   o Fix ...
+
