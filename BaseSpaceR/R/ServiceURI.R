@@ -35,11 +35,11 @@ setMethod("uri", "ServiceURI",
           })
 
 
-## the processing of the header and the body could be optimized - TODO!
+## the processing of the returned header and the body could be optimized - TODO!
 ## we could also introduce a switch to avoid grabing the header
 ## @... are parameters send to postForm.
 ##      Often used options: curl = handler and .params = list(<POST params>)
-setMethod("POST", "ServiceURI",
+setMethod("POSTForm", "ServiceURI",
           function(x, resource, ..., verbose = FALSE) {
             H <- basicHeaderGatherer()
             B <- basicTextGatherer()
@@ -47,6 +47,23 @@ setMethod("POST", "ServiceURI",
                      .opts = curlOptions(verbose = verbose,
                        headerfunction = H$update,
                        writefunction = B$update), ...)
+            ## H <- H$value() # we could use the header to check if the content is JSON
+            ##grepl("application/json", H["Content-Type"]) == TRUE !!!
+            return(list(header = H$value(),
+                        body = fromJSON(B$value(), simplifyWithNames = FALSE, nullValue = NA)))
+          })
+
+
+
+## @... are parameters send to curlPerform
+##      Often used options: curl = handler and postfields = <JSON string>
+setMethod("POST", "ServiceURI",
+          function(x, resource, postfields, ..., verbose = FALSE) {
+            H <- basicHeaderGatherer()
+            B <- basicTextGatherer()
+            curlPerform(url = uri(x, resource), postfields = postfields, 
+                        headerfunction = H$update, writefunction = B$update,
+                        verbose = verbose, ...)
             ## H <- H$value() # we could use the header to check if the content is JSON
             ##grepl("application/json", H["Content-Type"]) == TRUE !!!
             return(list(header = H$value(),

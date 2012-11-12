@@ -35,7 +35,7 @@ setMethod("createProject", "AppAuth",
             if(is.null(res))
               return(invisible(NULL))
 
-            message("\nProject ", name, " successfully created. Assigned Id: ", res$Id, "\n")
+            message("\nProject ", sQuote(name), " successfully created. Assigned Id: ", res$Id, "\n")
             return(res)
           })
 

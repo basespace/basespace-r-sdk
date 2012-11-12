@@ -2,9 +2,10 @@
 
 import(methods)
 importFrom(utils, packageVersion)
+importMethodsFrom(RCurl, close)
 
 exportClasses(ServiceURI,
-              AppAuth, AppSession)
+              AppAuth)#, AppSession)
 
 export(## Non-generic functions:
        ## misc.R
@@ -16,19 +17,40 @@ export(## Non-generic functions:
        AppAuth,
        
        ## Generic functions:
-       uri, GET, POST,
+       uri,
+       ##GET, POST, POSTForm, ## do not export at a later point ...
+
        initializeAuth, requestAccessToken,
-       listUsers, listGenomes,
-       listRuns, listProjects, createProject,
-       listFiles, getFiles
+       ## Users
+       listUsers,
+       ## Runs
+       listRuns,
+       ## Projects
+       listProjects, createProject,
+       ## AppSessions
+       listAppSessions, updateAppSessions,
+       ## Samples
+       listSamples,
+       ## AppResults
+       listResults, createResults,
+       ## Genomes
+       listGenomes,
+       ## Files
+       listFiles, getFiles,
+       ## Variants
+       getVariantSet, getVariants,
+       ## Coverage
+       getCoverage, getCoverageStats
 )
 
 exportMethods(
               ## Methods for generics
-              uri, GET, POST,
+              uri,
+              ##GET, POST,
               initializeAuth, requestAccessToken,
               listUsers, listGenomes,
               listRuns, listProjects, createProject,
+              listSamples,
               listFiles, getFiles,
               
               show

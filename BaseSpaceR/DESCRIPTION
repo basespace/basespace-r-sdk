@@ -2,7 +2,7 @@ Package: BaseSpaceR
 Title: R API for BaseSpace RESTful API
 Description: R API for developing scipts and applications based on the 
 	     Illumina's BaseSpace cloud coumputing environment. 
-Version: 0.1.0
+Version: 0.1.2
 Author: Adrian Alexa
 Maintainer: Adrian Alexa
         <aalexa@illumina.com>
@@ -19,7 +19,10 @@ Collate: generics.R
 	 Runs.R
 	 Genomes.R
 	 Projects.R
+	 AppResults.R
 	 Samples.R
 	 Files.R
+	 Variants.R
+	 Coverage.R
 	 misc.R
 	 zzz.R

@@ -1,23 +1,20 @@
-setMethod("listSamples","AppAuth",
-          function(x, id, projectID, ...) {
+setMethod("listSamples",
+          signature(x = "AppAuth", id = "missing"),
+          function(x, projectId, ...) {
+            return(x$doGET(resource = make_resource("projects", projectId, "samples"), ...))
+          })
 
-            stop("Dispatch on 'id', and if 'id' is missing, we must have the projectID")
+setMethod("listSamples",
+          signature(x = "AppAuth", id = "ANY"),
+          function(x, id, simplify = TRUE) {
             
-            if(missing(id))
-              return(x$doGET(resource = make_resource("projects", projectID, "samples"), ...))
+            res <- lapply(id, function(i) x$doGET(resource = make_resource("samples", i)))
             
-            if(length(list(...)))
-              warning("Query parameters ignored when quering selected samples!")
+            if(length(id) == 1L && simplify) 
+              return(res[[1L]])
             
-            res <- lapply(id, function(i) {
-              x$doGET(resource = make_resource("samples", i))
-            })
-            
-            if(length(id) == 1L) 
-              res <- res[[1L]]
-            else
-              names(res) <- id
-            
+            names(res) <- id
             return(res)
           })
 
+            

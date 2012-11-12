@@ -10,6 +10,8 @@ if(!isGeneric("GET"))
   setGeneric("GET", function(x, ...) standardGeneric("GET"))
 if(!isGeneric("POST"))
   setGeneric("POST", function(x, ...) standardGeneric("POST"))
+if(!isGeneric("POSTForm"))
+  setGeneric("POSTForm", function(x, ...) standardGeneric("POSTForm"))
 
 
 ## methods for AppAuth
@@ -35,15 +37,33 @@ if(!isGeneric("listProjects"))
 if(!isGeneric("createProject"))
   setGeneric("createProject", function(x, ...) standardGeneric("createProject"))
 
+if(!isGeneric("listResults"))
+  setGeneric("listResults", function(x, id, ...) standardGeneric("listResults"))
+if(!isGeneric("createResults"))
+  setGeneric("createResults", function(x, ...) standardGeneric("createResults"))
+
+if(!isGeneric("listAppSessions"))
+  setGeneric("listAppSessions", function(x, ...) standardGeneric("listAppSessions"))
+if(!isGeneric("updateAppSessions"))
+  setGeneric("updateAppSessions", function(x, ...) standardGeneric("updateAppSessions"))
 
 if(!isGeneric("listSamples"))
-  setGeneric("listSamples", function(x, ...) standardGeneric("listSamples"))
-
+  setGeneric("listSamples", function(x, id, ...) standardGeneric("listSamples"))
 
 if(!isGeneric("listFiles"))
   setGeneric("listFiles", function(x, id, ...) standardGeneric("listFiles"))
-
 if(!isGeneric("getFiles"))
   setGeneric("getFiles", function(x, ...) standardGeneric("getFiles"))
 
+
+if(!isGeneric("getVariantSet"))
+  setGeneric("getVariantSet", function(x, ...) standardGeneric("getVariantSet"))
+if(!isGeneric("getVariants"))
+  setGeneric("getVariants", function(x, ...) standardGeneric("getVariants"))
+
+
+if(!isGeneric("getCoverage"))
+  setGeneric("getCoverage", function(x, ...) standardGeneric("getCoverage"))
+if(!isGeneric("getCoverageStats"))
+  setGeneric("getCoverageStats", function(x, ...) standardGeneric("getCoverageStats"))
 

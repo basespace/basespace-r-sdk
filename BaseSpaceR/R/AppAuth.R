@@ -31,18 +31,30 @@ setClassUnion("CURLHandleORNULL", c("NULL", "CURLHandle"))
                             if(length(access_token) == 0L) 
                               stop("No access tocken available! Run initializeAuth() to start the authentication!")
                             
-                            curl_handle <<- getCurlHandle(httpheader = list("x-access-token" = access_token))
+                            curl_handle <<- getCurlHandle(httpheader = c("x-access-token" = access_token))
                           },
                           
+                          dup_handle = function(headerFields) {
+                            'Duplicates the current curl handle.'
+                            if (is.null(curl_handle)) 
+                              set_handle()
+                            
+                            if(missing(headerFields))
+                              return(dupCurlHandle(curl = curl_handle))
+                                                        
+                            dupCurlHandle(curl = curl_handle,
+                                          httpheader = c("x-access-token" = access_token, headerFields))
+                          },
+
                           initializeAuth = function(scope = "browse global",
                             resource = "oauthv2/deviceauthorization") {
                             'Method that initialize the authentication process.
                              It is automaticaly run by the class generic constructor.
                             '
                             ## send request for the verification code
-                            res <- POST(uri, resource = resource,
-                                        .params = list(response_type = "device_code",
-                                          client_id = client_id, scope = scope))
+                            res <- POSTForm(uri, resource = resource,
+                                            .params = list(response_type = "device_code",
+                                              client_id = client_id, scope = scope))
 
                             ## store the body in the .self$response
                             response <<- res$body
@@ -79,11 +91,11 @@ setClassUnion("CURLHandleORNULL", c("NULL", "CURLHandle"))
                               stop("'device_code' not available in the current state!")
                             
                             ## send request for the verification code
-                            res <- POST(uri, resource = resource,
-                                        .params = list(client_id = client_id,
-                                          client_secret = client_secret,
-                                          grant_type = "device",
-                                          code = device_code))
+                            res <- POSTForm(uri, resource = resource,
+                                            .params = list(client_id = client_id,
+                                              client_secret = client_secret,
+                                              grant_type = "device",
+                                              code = device_code))
                             
                             if(res$header[["status"]] != "200") {
                               message(res$header[["statusMessage"]])
@@ -133,13 +145,23 @@ setClassUnion("CURLHandleORNULL", c("NULL", "CURLHandle"))
 })
   
 
-.AppAuth$methods(doPOST = function(...) {
+## doPOST will call either POSTForm or POST depending if 'postbody' is set or not 
+.AppAuth$methods(doPOST = function(..., headerFields, postbody) {
   'Perform a POST request to the server'
   if(is.null(curl_handle))
     set_handle()
-  
-  res <- POST(uri, curl = curl_handle, ...)
 
+  ## update the header if necessary 
+  h <- if(missing(headerFields)) curl_handle
+  else dup_handle(headerFields)
+
+  ## call either POST or POSTForm
+  res <- if(missing(postbody))
+    POSTForm(uri, curl = h, ...)
+  else
+    POST(uri, curl = h, postfields = postbody, ...)
+  
+  
   ## accept any HTTP 2xx code (Success)
   if(!grepl("^2[[:digit:]]{2}$", res$header[["status"]])) {
     message("\n", res$header[["statusMessage"]], "\n", 
