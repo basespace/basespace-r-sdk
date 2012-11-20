@@ -12,16 +12,15 @@ setMethod("listRuns","AppAuth",
             
             if(length(list(...)))
               warning("Query parameters ignored when quering selected runs!")
-            
-            res <- lapply(id, function(i) {
-              x$doGET(resource = make_resource("runs", i))
-            })
+
+            id <- as_id(id)
+
+            res <- lapply(id, function(i) x$doGET(resource = make_resource("runs", i)))
             
             if(length(id) == 1L) 
-              res <- res[[1L]]
-            else
-              names(res) <- id
-            
+              return(res[[1L]])
+
+            names(res) <- id
             return(res)
           })
 

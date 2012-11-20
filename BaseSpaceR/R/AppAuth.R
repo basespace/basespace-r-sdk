@@ -8,12 +8,14 @@ setClassUnion("CURLHandleORNULL", c("NULL", "CURLHandle"))
                         fields = list(
                           client_id = "character", 
                           client_secret = "character", 
+                          ## address of the REST server (root url + version)
                           uri = "ServiceURI", 
                           ## stores the last response from the server - the current state?
                           response = "list",
                           ## curl handler to allow for persistant connections
                           curl_handle = "CURLHandleORNULL",
                           access_token = "character"),
+
                         methods = list(
                           
                           show = function() {
@@ -70,7 +72,7 @@ setClassUnion("CURLHandleORNULL", c("NULL", "CURLHandle"))
                             access_token <<- character()
                             
                             ## present the verification URI
-                            message("\nPerform App grant access using the following URI:")
+                            message("\nPerform OAuth authentication using the following URI:")
                             message("\t", res$body$verification_with_code_uri, "\n")
                             
                             return(invisible(list(uri = res$body$verification_uri,

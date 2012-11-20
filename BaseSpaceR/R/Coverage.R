@@ -10,7 +10,7 @@ setMethod("getCoverageStats", "AppAuth",
               chrom <- chrom[1L]
             }
             
-            lapply(id, function(i) x$doGET(resource = make_resource("coverage", i, chrom, "meta")))
+            lapply(as_id(id), function(i) x$doGET(resource = make_resource("coverage", i, chrom, "meta")))
           })
 
 
@@ -21,6 +21,6 @@ setMethod("getCoverage", "AppAuth",
               chrom <- chrom[1L]
             }
             
-            lapply(id, function(i) x$doGET(resource = make_resource("coverage", i, chrom), ...))
+            lapply(as_id(id), function(i) x$doGET(resource = make_resource("coverage", i, chrom), ...))
           })
 

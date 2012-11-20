@@ -5,13 +5,14 @@
 setMethod("listResults",
           signature(x = "AppAuth", id = "missing"),
           function(x, projectId, ...) {
-            return(x$doGET(resource = make_resource("projects", projectId, "appresults"), ...))
+            return(x$doGET(resource = make_resource("projects", as_id(projectId), "appresults"), ...))
           })
 
 setMethod("listResults",
           signature(x = "AppAuth", id = "ANY"),
           function(x, id, simplify = TRUE) {
-            
+
+            id <- as_id(id)
             res <- lapply(id, function(i) x$doGET(resource = make_resource("appresults", i)))
             
             if(length(id) == 1L && simplify) 
@@ -30,7 +31,7 @@ setMethod("createResults", "AppAuth",
 
             ## we need to update the header !!!
             ## -H "Content-Type: application/json"
-            res <- x$doPOST(resource = make_resource("projects", projectId, "appresults"),
+            res <- x$doPOST(resource = make_resource("projects", as_id(projectId), "appresults"),
                             headerFields = c("Content-Type" = "application/json"),
                             postbody = value)
             if(is.null(res))

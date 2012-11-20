@@ -10,15 +10,15 @@ setMethod("listGenomes", "AppAuth",
 
             if(length(list(...)))
               warning("Query parameters ignored when quering selected genomes!")
-            
-            res <- lapply(id, function(gid) {
-              x$doGET(resource = make_resource("genomes", gid))
-            })
 
+            id <- as_id(id)
+
+            res <- lapply(id, function(gid) x$doGET(resource = make_resource("genomes", gid)))
+            
             if(length(id) == 1L) 
-              res <- res[[1L]]
-            else
-              names(res) <- id
+              return(res[[1L]])
+            
+            names(res) <- id
             return(res)
           })
 

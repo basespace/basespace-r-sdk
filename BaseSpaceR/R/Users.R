@@ -12,6 +12,6 @@ setMethod("listUsers", "AppAuth",
               id <- id[1L]
             }
             
-            return(x$doGET(resource = make_resource("users", id)))
+            return(x$doGET(resource = make_resource("users", as_id(id))))
           })
 

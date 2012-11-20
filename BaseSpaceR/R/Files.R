@@ -12,15 +12,15 @@ setMethod("listFiles",
           function(x, runId, sampleId, resultId, ...) {
             ## by Runs Id
             if(!missing(runId))
-              return(x$doGET(resource = make_resource("runs", runId, "files"), ...))
+              return(x$doGET(resource = make_resource("runs", as_id(runId), "files"), ...))
 
             ## by Sample Id
             if(!missing(sampleId))
-              return(x$doGET(resource = make_resource("samples", sampleId, "files"), ...))
+              return(x$doGET(resource = make_resource("samples", as_id(sampleId), "files"), ...))
             
             ## by Appresult Id
             if(!missing(resultId))
-              return(x$doGET(resource = make_resource("appresults", resultId, "files"), ...))
+              return(x$doGET(resource = make_resource("appresults", as_id(resultId), "files"), ...))
           })
 
 
@@ -28,6 +28,7 @@ setMethod("listFiles",
           signature(x = "AppAuth", id = "ANY"),
           function(x, id, simplify = TRUE) {
 
+            id <- as_id(id)
             res <- .listFilesById(x, id)
             
             if(length(id) == 1L && simplify) 
@@ -67,10 +68,11 @@ setMethod("getFiles", "AppAuth",
             
             if(missing(id))
               stop("Please specify the file(s) 'id'")
-            
+
+            id <- as_id(id)
             ## get the file information / metadata
             fInfo <- .listFilesById(x, id)
-
+            
             if(is.null(fInfo) || all(sapply(fInfo, is.null)))
               stop("Wrong file 'id' or resource scope!")
             

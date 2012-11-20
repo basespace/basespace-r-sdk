@@ -10,7 +10,7 @@ setMethod("getVariantSet", "AppAuth",
             }
 
             ## Format = "json" - at the moment we don't allow for any other type of response ...
-            return(x$doGET(resource = make_resource("variantset", id)))
+            return(x$doGET(resource = make_resource("variantset", as_id(id))))
           })
 
 ## should we ask for and check 'Chrom', 'StartPos', 'EndPos' ???
@@ -21,7 +21,7 @@ setMethod("getVariants", "AppAuth",
               id <- id[1L]
             }
 
-            return(x$doGET(resource = make_resource("variantset", id, "variants", chrom), ...))
+            return(x$doGET(resource = make_resource("variantset", as_id(id), "variants", chrom), ...))
           })
 
 ## Alternatively to the two 'generic' functions above, we could have some fuctions

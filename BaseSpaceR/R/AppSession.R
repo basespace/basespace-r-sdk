@@ -15,7 +15,7 @@ setMethod("listAppSessions", "AppAuth",
             ####
             stop("Resource not yet implemented!")
             ####
-            return(x$doGET(resource = make_resource("appsessions", id)))
+            return(x$doGET(resource = make_resource("appsessions", as_id(id))))
           })
 
 
@@ -29,7 +29,7 @@ setMethod("updateAppSessions", "AppAuth",
             if(missing(status))
               stop("New App status required via 'status' parameter!")
             
-            res <- x$doPOST(resource = make_resource("appsessions", id),
+            res <- x$doPOST(resource = make_resource("appsessions", as <- id(id)),
                             .params = list(status = status, statussummary = statusSummary))
             if(is.null(res))
               return(invisible(NULL))
