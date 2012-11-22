@@ -154,7 +154,7 @@ setMethod("putFiles", "AppAuth",
             sres <- paste0(make_resource("appresults", as_id(resultId), "files"),
                            "?name=", basename(fIn))
             if(!missing(directory))
-              sres <- paste0(sres, "\&directory=", directory) # the REST API should check the validity of 'directory'
+              sres <- paste0(sres, "&directory=", directory) # the REST API should check the validity of 'directory'
             
             res <- x$doPOST(resource = sres, headerFields = c("Content-Type" = "application/octet-stream"),
                             postbody = fcont, verbose = verbose)

@@ -36,7 +36,7 @@ export(## Non-generic functions:
        ## Genomes
        listGenomes,
        ## Files
-       listFiles, getFiles,
+       listFiles, getFiles, putFiles,
        ## Variants
        getVariantSet, getVariants,
        ## Coverage
@@ -48,11 +48,18 @@ exportMethods(
               uri,
               ##GET, POST,
               initializeAuth, requestAccessToken,
-              listUsers, listGenomes,
-              listRuns, listProjects, createProject,
+              initializeAuth, requestAccessToken,
+              listUsers,
+              listRuns,
+              listProjects, createProject,
+              listAppSessions, updateAppSessions,
               listSamples,
-              listFiles, getFiles,
-              
+              listResults, createResults,
+              listGenomes,
+              listFiles, getFiles, putFiles,
+              getVariantSet, getVariants,
+              getCoverage, getCoverageStats,
+
               show
               ##  lapply
 )
