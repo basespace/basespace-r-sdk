@@ -54,6 +54,8 @@ if(!isGeneric("listFiles"))
   setGeneric("listFiles", function(x, id, ...) standardGeneric("listFiles"))
 if(!isGeneric("getFiles"))
   setGeneric("getFiles", function(x, ...) standardGeneric("getFiles"))
+if(!isGeneric("putFiles"))
+  setGeneric("putFiles", function(x, ...) standardGeneric("putFiles"))
 
 
 if(!isGeneric("getVariantSet"))

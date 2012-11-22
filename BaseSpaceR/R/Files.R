@@ -120,3 +120,47 @@ setMethod("getFiles", "AppAuth",
             return(fInfo)
           })
 
+
+
+## The File is first loaded into memory and then POSTed as the postbody.
+## We restrict the file size to 100MB for now.
+## TODO: we should vectorize this function w.r.t the fIn.
+##       For now only the the first element of fIn is uploaded!
+## For now the file will use the same name. User can only specify the directory!
+setMethod("putFiles", "AppAuth",
+          function(x, resultId, fIn, directory, verbose = FALSE) {
+
+            ## Basic checks ...
+            if(missing(resultId))
+              stop("Please specify the AppResult Id ('resultId') where to upload the file(s).")
+
+            if(length(fIn) > 1L) {
+              warning("Only the first element in 'fIn' will be used.")
+              fIn <- fIn[1L]
+            }
+
+            if(!file.exists(fIn))
+              stop("\nFile ", sQuote(fIn), " doesn't exist!\n")
+            
+            ## We allow files not larger than 100MB to be uploaded as single file.
+            fsize <- file.info(fIn)$size
+            if(fsize > 100 * 2^20)
+              stop("\nFile size over the allowed limit of 100MB\n")
+              
+            ## Load the file into the memory
+            fcont <- readBin(fIn, what = raw(), n = fsize)
+
+            ## Make resource with query paramenters
+            sres <- paste0(make_resource("appresults", as_id(resultId), "files"),
+                           "?name=", basename(fIn))
+            if(!missing(directory))
+              sres <- paste0(sres, "\&directory=", directory) # the REST API should check the validity of 'directory'
+            
+            res <- x$doPOST(resource = sres, headerFields = c("Content-Type" = "application/octet-stream"),
+                            postbody = fcont, verbose = verbose)
+            if(is.null(res))
+              return(invisible(NULL))  
+
+            message("\nFile: ", sQuote(basename(fIn)), " successfully uploaded! Assigned Id: ", res$Id, "\n")
+            return(res)
+          })
