@@ -28,19 +28,19 @@ Installation
 
 This section briefly describe the necessary steps to get BaseSpaceR running on your system. The BaseSpaceR package is available from the Github repository:
 
-     git clone git@github.com:basespace/basespace-r-sdk.git
+	git clone git@github.com:basespace/basespace-r-sdk.git
 
 We can install the package globally by running the following command:
 
-   R CMD INSTALL BaseSpaceR
+	R CMD INSTALL BaseSpaceR
 
 However, sometimes it is desirable (if the users doesn't have control over the R installation) to install the libraries locally. In order to do this the user needs to set the R_LIBS environment variable.
 
-	 export R_LIBS='/path/to/local/Rlibs'
+	export R_LIBS='/path/to/local/Rlibs'
 
 Once this is set, install the package under the R_LIBS directory
 
-     R CMD INSTALL BaseSpaceR -l/path/to/local/Rlibs
+	R CMD INSTALL BaseSpaceR -l/path/to/local/Rlibs
 
 
 Loading the package
@@ -48,7 +48,7 @@ Loading the package
 
 From within R, load the library using:
 
-     > library(BaseSpaceR)
+	> library(BaseSpaceR)
 
 Note that when the package is loaded, both RCurl and RJSONIO packages are automatically loaded, so the user doesn't need to explicitly load these libraries if he wants to make use of their functionality.
 
@@ -56,7 +56,7 @@ Note that when the package is loaded, both RCurl and RJSONIO packages are automa
 Feature Request and Bugs
 =========================================
 
-Please feel free to report any feedback regarding the R SDK directly to the repository R API Repository , we aAuthreciate any and all feedback about the SDKs. We will do anything we can to improve the SDK and make it easy for developers to use the SDK.
+Please feel free to report any feedback regarding the R SDK directly to the repository R API Repository, we appreciate any and all feedback about the SDKs. We will do anything we can to improve the SDK and make it easy for developers to use the SDK.
 
 
 Copying / License
