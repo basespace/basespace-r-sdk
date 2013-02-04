@@ -4,11 +4,11 @@ Introduction
 The BaseSpaceR package provides a complete R interface to Illumina's BaseSpace REST API, enabling the fast development of data analysis and visualisation tools. Besides providing an easy to use set of methods for manipulating the data from BaseSpace, it also facilitate the access to a rich environment of statistical and data analysis open source tools.
 
 Features include:
-    Persistent connection with the REST server.
-    Support for the REST API query parameters.
-    Vectorized operations in line with the R semantic. Allows for queries across multiple Projects, Samples, AppResults, Files, etc.
-    S4 class system used to represent the BaseSpace data model [under development].
-    Templates for uploading and creating AppResults.
+- Persistent connection with the REST server.
+- Support for the REST API query parameters.
+- Vectorized operations in line with the R semantic. Allows for queries across multiple Projects, Samples, AppResults, Files, etc.
+- S4 class system used to represent the BaseSpace data model [under development].
+- Templates for uploading and creating AppResults.
 
 
 Authors
@@ -26,11 +26,9 @@ Some familiarity with the BaseSpace API and the R environment is assumed. The R 
 Installation
 =========================================
 
-This section briefly describe the necessary steps to get BaseSpaceR running on your system. 
+This section briefly describe the necessary steps to get BaseSpaceR running on your system. The BaseSpaceR package is available from the Github repository:
 
-The BaseSpaceR package is available from the Github repository:
-
-    git clone git@github.com:basespace/basespace-r-sdk.git
+     git clone git@github.com:basespace/basespace-r-sdk.git
 
 We can install the package globally by running the following command:
 
@@ -59,3 +57,9 @@ Feature Request and Bugs
 =========================================
 
 Please feel free to report any feedback regarding the R SDK directly to the repository R API Repository , we aAuthreciate any and all feedback about the SDKs. We will do anything we can to improve the SDK and make it easy for developers to use the SDK.
+
+
+Copying / License
+=========================================
+
+See LICENSE file in the BaseSpaceR directory for details on licensing and distribution.
