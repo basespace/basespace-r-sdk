@@ -51,12 +51,13 @@ A typical session can be divided into the following steps:
 - Uploading results back to BaseSpace
 
 
-### Q-score per cycle ###
+### Mean Q-score per cycle ###
 
 In this sample session we'll show how to select the FastQ file(s) from a specific sample, compute and plot the average Q-score per cycle, create an `AppResults` resource and link the generated image to it. For a more comprehensive example, see the `makeAppResult_Qscore.R` file in the scripts directory of the `BaseSpaceR` package.
 
 
-#### Load the library ####
+**Load the library**
+
 
 ```
 > library(BaseSpaceR)
@@ -92,7 +93,8 @@ Authorized: TRUE
 We now have our client App authenticated and we can start manipulating the resources the user has granted access to.
 
 
-#### View the available projects ####
+**View the available projects**
+
 One of the first steps is to inspect the resources available to the user under the current scope. Lets assume we need to browse all the projects accessible to the user. We can do this using the `listProjects()` function.
 ```
 > res <- listProjects(aAuth)
@@ -148,7 +150,9 @@ $ Name : chr "BaseSpaceDemo"
 $ DateCreated: chr "2012-08-19T21:14:57.0000000"
 ```
 
-#### Select samples ####
+
+**Select samples**
+
 Once we decided which project we want to work on, we can browse the samples associated with it. We can list all the samples or we can limit the search to a specific number of samples, which can be achieved using the `Limit` query parameter.
 ```
 > samples <- listSamples(aAuth, projectId = projId, Limit = 1)
@@ -194,7 +198,8 @@ For example, the *References* entry contains the relation between the selected s
 [1] 4
 ```
 
-#### Sample files ####
+**Sample files**
+
 We can now access the files linked to the selected sample. To browse the files we use the `listFiles()` function and the sample Id.
 ```
 > allFiles <- listFiles(aAuth, sampleId = samplId)
@@ -235,7 +240,8 @@ Downloading file:
 data/intensities/basecalls/s_G1_L001_R1_002.fastq.1.gz ... done!
 ```
 
-#### Compute the average Q-score at each cycle ####
+**Compute the average Q-score at each cycle**
+
 To compute the average Q-scores we need to read the FastQ file from R and extract the base qualities for each read. The Bioconductor `ShortRead` library offers functionality for this. We use the `readFastq()` function to read the file and `quality()` to extract the base qualities.
 ```
 > library(ShortRead)
@@ -264,7 +270,8 @@ We can now generate a simple plot with the average Q-score. We plot the data int
 > dev.off()
 ```
 
-#### Create the AppResults ####
+**Create the AppResults**
+
 We can now store the results that our App generated, the Q-score figure in our case, into BaseSpace. To do this we need to create a new `AppResults` instance (possibly under the current project). Before this, we can browse the available results within the current project to inspect if there are any other `AppResults` instances associated with it.
 ```
 > allRes <- listResults(aAuth, projectId = projId))
@@ -311,7 +318,8 @@ API](https://developer.basespace.illumina.com/docs/content/documentation/rest-ap
 > str(listResults(aAuth, projectId = projId))
 ```
 
-#### Upload the PNG file ####
+**Upload the PNG file**
+
 The function used for file uploads is `putFiles()`. [At the moment this function implements only the POST method. Multiple file uploads will be soon supported using the same interface]. To upload the file we need to specify the `AppResults` Id and the file location on the disk.
 ```
 res <- putFiles(aAuth, resultId = resId, fIn = gfile)
