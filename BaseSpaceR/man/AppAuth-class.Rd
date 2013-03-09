@@ -13,55 +13,6 @@
 \alias{requestAccessToken}
 
 
-\alias{getCoverage,AppAuth-method}
-\alias{getCoverage}
-\alias{getCoverageStats,AppAuth-method}
-\alias{getCoverageStats}
-
-\alias{getVariants,AppAuth-method}
-\alias{getVariantSet,AppAuth-method}
-\alias{getVariants}
-\alias{getVariantSet}
-
-\alias{listAppSessions,AppAuth-method}
-\alias{listAppSessions}
-\alias{updateAppSessions,AppAuth-method}
-\alias{updateAppSessions}
-
-
-\alias{listFiles,AppAuth,ANY-method}
-\alias{listFiles,AppAuth,missing-method}
-\alias{listFiles}
-\alias{getFiles,AppAuth-method}
-\alias{getFiles}
-
-\alias{listGenomes,AppAuth-method}
-\alias{listGenomes}
-
-\alias{listProjects,AppAuth-method}
-\alias{listProjects}
-\alias{createProject,AppAuth-method}
-\alias{createProject}
-
-\alias{listResults,AppAuth,ANY-method}
-\alias{listResults,AppAuth,missing-method}
-\alias{listResults}
-\alias{createResults,AppAuth-method}
-\alias{createResults}
-
-
-\alias{listRuns,AppAuth-method}
-\alias{listRuns}
-
-\alias{listSamples,AppAuth,ANY-method}
-\alias{listSamples,AppAuth,missing-method}
-\alias{listSamples}
-
-\alias{listUsers,AppAuth-method}
-\alias{listUsers}
-
-
-
 \title{Class \code{"AppAuth"}}
 
 \description{
@@ -70,28 +21,10 @@
 
 \section{Methods}{
   \describe{
-    \item{createProject}{\code{signature(x = "AppAuth")}: ... }
-    \item{createResults}{\code{signature(x = "AppAuth")}: ... }
-    \item{getCoverage}{\code{signature(x = "AppAuth")}: ... }
-    \item{getCoverageStats}{\code{signature(x = "AppAuth")}: ... }
-    \item{getFiles}{\code{signature(x = "AppAuth")}: ... }
-    \item{getVariants}{\code{signature(x = "AppAuth")}: ... }
-    \item{getVariantSet}{\code{signature(x = "AppAuth")}: ... }
     \item{initializeAuth}{\code{signature(x = "AppAuth")}: ... }
-    \item{listAppSessions}{\code{signature(x = "AppAuth")}: ... }
-    \item{listFiles}{\code{signature(x = "AppAuth", id = "ANY")}: ... }
-    \item{listFiles}{\code{signature(x = "AppAuth", id = "missing")}: ... }
-    \item{listGenomes}{\code{signature(x = "AppAuth")}: ... }
-    \item{listProjects}{\code{signature(x = "AppAuth")}: ... }
-    \item{listResults}{\code{signature(x = "AppAuth", id = "ANY")}: ... }
-    \item{listResults}{\code{signature(x = "AppAuth", id = "missing")}: ... }
-    \item{listRuns}{\code{signature(x = "AppAuth")}: ... }
-    \item{listSamples}{\code{signature(x = "AppAuth", id = "ANY")}: ... }
-    \item{listSamples}{\code{signature(x = "AppAuth", id = "missing")}: ... }
-    \item{listUsers}{\code{signature(x = "AppAuth")}: ... }
     \item{requestAccessToken}{\code{signature(x = "AppAuth")}: ... }
     \item{updateAppSessions}{\code{signature(x = "AppAuth")}: ... }
-	 }
+  }
 }
 \references{
   https://developer.basespace.illumina.com/docs/content/documentation/rest-api/api-reference
@@ -107,6 +40,9 @@
 }
 \examples{
 showClass("AppAuth")
+
+data(aAuth)
+
 }
 \keyword{classes}
 \section{Fields}{

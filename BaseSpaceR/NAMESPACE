@@ -4,8 +4,16 @@ import(methods)
 importFrom(utils, packageVersion)
 importMethodsFrom(RCurl, close)
 
-exportClasses(ServiceURI,
-              AppAuth)#, AppSession)
+exportClasses(ServiceURI, AppAuth, # Authentication
+              Item, Collection, Response, # we might not need to export these shince they are virtual
+              Users, userItem, # Users
+              Runs, RunsSummary, runItem, runCollection, # Runs
+              Genomes, GenomesSummary, genomeItem, genomeCollection, # Genomes
+              Projects, ProjectsSummary, projectItem, projectCollection, # Projects
+              Samples, SamplesSummary, sampleItem, sampleCollection, # Samples
+              AppResults, AppResultsSummary, appResultItem, appResultCollection, # AppResults
+              AppSessions, appSessionItem, # AppSessions
+              Files, FilesSummary, fileItem, fileCollection) # Files
 
 export(## Non-generic functions:
        ## misc.R
@@ -19,24 +27,31 @@ export(## Non-generic functions:
        ## Generic functions:
        uri,
        ##GET, POST, POSTForm, ## do not export at a later point ...
-
+       ## AppAuth
        initializeAuth, requestAccessToken,
+       ## Item
+       Id, Name, Href, DateCreated, UserOwnedBy, Status, HrefBaseSpaceUI,
+       ## Collection
+       Items, DisplayedCount, TotalCount, Offset, Limit, SortDir, SortBy,
+       ## Response
+       auth,
        ## Users
-       listUsers,
+       Users, userItem, # we might not export some of these as a later point
        ## Runs
-       listRuns,
+       Runs, listRuns, runItem, runCollection,
        ## Projects
-       listProjects, createProject,
-       ## AppSessions
-       listAppSessions, updateAppSessions,
+       Projects, listProjects, projectItem, projectCollection, createProject,
        ## Samples
-       listSamples,
+       Samples, listSamples, sampleItem, sampleCollection,
        ## AppResults
-       listResults, createResults,
+       AppResults, appResultItem, appResultCollection, listAppResults, createAppResults,
+       ## AppSessions
+       AppSessions, listAppSessions, updateAppSessions,
        ## Genomes
-       listGenomes,
+       Genomes, listGenomes, genomeItem, genomeCollection,
        ## Files
-       listFiles, getFiles, putFiles,
+       Files, listFiles, fileItem, fileCollection, getFiles, putFiles,
+       
        ## Variants
        getVariantSet, getVariants,
        ## Coverage
@@ -48,18 +63,30 @@ exportMethods(
               uri,
               ##GET, POST,
               initializeAuth, requestAccessToken,
-              initializeAuth, requestAccessToken,
-              listUsers,
-              listRuns,
-              listProjects, createProject,
-              listAppSessions, updateAppSessions,
-              listSamples,
-              listResults, createResults,
-              listGenomes,
-              listFiles, getFiles, putFiles,
+              ## Item
+              Id, Name, Href, DateCreated, UserOwnedBy, Status, HrefBaseSpaceUI,
+              ## Collection
+              Items, DisplayedCount, TotalCount, Offset, Limit, SortDir, SortBy,
+              ## Response
+              auth,
+              ## Resources
+              Users, # Users
+              Runs, listRuns, # Runs
+              Projects, listProjects, createProject, # Projects
+              Samples, listSamples, # Samples
+              AppResults, listAppResults, createAppResults, # AppResults
+              AppSessions, listAppSessions, updateAppSessions, # AppSessions
+              Genomes, listGenomes, # Genomes
+              Files, listFiles, getFiles, putFiles,
+
               getVariantSet, getVariants,
               getCoverage, getCoverageStats,
 
-              show
+              ## operators
+              ##"[", "[[",
+              "$",
+
+              show,
+              as.list
               ##  lapply
 )

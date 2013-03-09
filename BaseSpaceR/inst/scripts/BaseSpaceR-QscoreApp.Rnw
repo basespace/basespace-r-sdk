@@ -1,0 +1,561 @@
+%\VignetteIndexEntry{BaseSpaceR}
+%\VignetteDepends{BaseSpaceR, ShortRead}
+%\VignetteKeywords{BaseSpace}
+%\VignettePackage{BaseSpaceR}
+
+\documentclass[a4paper, oneside, 10pt]{article}
+
+\usepackage[pdftex]{hyperref}
+\usepackage{calc}
+\usepackage{sectsty}
+\usepackage{caption}
+\usepackage{natbib}
+\renewcommand{\captionfont}{\it\sffamily}
+\renewcommand{\captionlabelfont}{\bf\sffamily}
+\allsectionsfont{\sffamily}
+
+% page style %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[a4paper, left=25mm, right=20mm, top=20mm, bottom=25mm, nohead]{geometry}
+\setlength{\parskip}{1.5ex}
+\setlength{\parindent}{0cm}
+\pagestyle{empty}
+
+
+\usepackage{Sweave}
+\SweaveOpts{prefix.string = miscUtils}
+
+
+\title{\vspace*{-6ex} Sample App - Mean Q-score per cycle}
+\author{Adrian Alexa}
+\date{\today \\%
+  \texttt{aalexa@illumina.com}}
+
+\begin{document}
+\maketitle
+
+%%\newpage
+\tableofcontents
+\newpage
+
+<<echo = FALSE>>=
+options(width = 95)
+
+getQscoreCounts <- function(fIn, maxS = 42L) {
+  ## read the fastq file and keep the qualities 
+  r <- quality(quality(readFastq(fIn, withIds = FALSE)))
+  r_row <- width(r)[[1L]]
+  r_col <- length(r)
+
+  ## transorm the qualities to integers from 2 to maxS
+  x <- as.integer(unlist(r, use.names = FALSE)) - 33L
+  dim(x) <- c(r_row, r_col)
+
+  ## tabulate each row in the matrix
+  qtab <- matrix(0L, nrow = maxS, ncol = r_row,
+                 dimnames = list(paste0("Q", seq_len(maxS)), NULL))
+  for(i in seq_len(r_row)) 
+    qtab[, i] <- tabulate(x[i, ], nbins = maxS)
+  
+  return(qtab)
+}
+
+getQscoreStats <- function(x) {
+  nr <- nrow(x)
+  nc <- ncol(x)
+  qstat <- matrix(0L, nrow = nc, ncol = 4L,
+                  dimnames = list(NULL, c("5%", "median", "95%", "mean")))
+  rleval <- seq_len(nr)
+  for(i in seq_len(nc)) {
+    r <- Rle(values = rleval, lengths = x[, i])
+    qstat[i, ] <- c(quantile(r, probs = c(0.05, .5, 0.95)), mean(r))
+  }
+
+  return(qstat)
+}
+@ 
+    
+
+
+\section{Introduction}
+\label{sec:Intro}
+
+This document describes a simple working session using {\tt BaseSpaceR}. 
+For more details on the functions used throughout this document please see the 
+package vignette - BaseSpaceR. 
+
+A typical BaseSpace session can be divided into the following steps:
+\begin{itemize}
+\item Client authentication
+\item Data retrieval and access
+\item Data processing
+\item Uploading results back to BaseSpace
+\end{itemize}
+
+In this sample session we'll show how to reach to sample data, select the
+FASTQ file(s) associated with the chosen sample, compute and plot the average
+Q-score per cycle, create an {\tt AppResults} instance and link the generated 
+image to it. 
+
+<<>>=
+library(BaseSpaceR)
+@ 
+
+
+\section{Authentication}
+\label{sec:auth}
+
+The first step is the authentication of the client application with the BaseSpace 
+REST server.  The authentication and communication between the client and the server is
+handled by an {\tt AppAuth} instance. There are two ways to create an {\tt AppAuth}
+instance. The easiest is to provide a pre-generated access token. Assuming you have 
+access to such a token stored as a character string in {\tt app\_access\_token}, 
+the handler can be created as follows:
+
+<<>>=
+aAuth <- AppAuth(access_token = app_access_token)
+aAuth
+@ 
+
+If the access token is valid then the connection with the server is established and 
+we can see it by printing the {\tt AppAuth} object (Authorized: TRUE).
+
+One can also use the OAuth2 authentication process, but in this case user 
+interaction is required. Authentication through the OAuth2 process is out of the scope
+of this document and we'll not show it here.
+
+Please note that for the purpose of this document one needs an access token with the 
+following scope: {\tt create~projects,~write~global}
+
+
+\section{Accessing the data}
+\label{sec:getdata}
+
+Now that our client App is authenticated with the server we can start exploring the
+data. One of the first steps is to inspect the resources available to the user under
+the current scope (associated with the access token).  
+
+\subsection{Browse  the available projects}
+\label{subsec:browse}
+
+Let's assume we need to browse all the projects accessible to the user. 
+We can do this using the {\tt listProjects()} method.
+
+<<>>=
+myProj <- listProjects(aAuth)
+myProj
+@ 
+
+For this instance there are $5$ projects available to the user. From the returned 
+object we can get the names and IDs of the available projects.
+
+<<>>=
+data.frame(Name = Name(myProj), Id = Id(myProj))
+@ 
+
+For each available project we can get more detailed information. Let's assume we are
+interested in project {\it BaseSpaceDemo} (with {\tt Id = 2}) for which we want
+to analyze the Q-score distribution of the reads. We can select it using the
+{\tt Projects()} method and the ID of the project(s) of interest.
+
+<<>>=
+selProj <- Projects(aAuth, id = 2, simplify = TRUE)
+selProj
+@ 
+
+
+\subsection{Select samples}
+\label{subsec:browsesampl}
+
+Once we have decided the project we want to work on, we can browse the samples associated
+with it. We can list all the samples or we can limit the search to a specific number
+of samples. This can be achieved using the {\tt Limit} query parameter.
+
+<<>>=
+sampl <- listSamples(selProj, Limit = 1)
+sampl
+@ 
+
+The same result can be achieved by querying directly the {\tt aAuth} handler and 
+specifying the project ID.
+
+<<>>=
+listSamples(aAuth, projectId = Id(selProj), Limit = 1)
+@ 
+
+There are a total of $\Sexpr{TotalCount(sampl)}$ samples associated with this
+project, and the listed sample (given that we restricted the result to one sample)
+has the ID {\tt \Sexpr{Id(sampl)}}. We can get more information on this sample by
+calling the {\tt Samples()} method with the {\tt aAuth} handler and the sample ID as
+argument or just by calling it using the {\tt sampl} object.
+
+<<>>=
+inSample <- Samples(aAuth, id = Id(sampl), simplify = TRUE)
+identical(inSample, Samples(sampl, simplify = TRUE))
+inSample
+@
+
+As we can see, the {\tt inSample} object contains detailed information on the 
+selected sample. For example, the {\tt NumReadsRaw} entry contains the number of 
+read pairs (in this case) available in this sample. We can access every entry given 
+by the Samples resource using the {\tt '\$'} operator. This operator works for every 
+resource.
+
+<<>>=
+inSample$NumReadsRaw
+@ 
+
+
+\subsection{Select and access files}
+\label{subsec:files}
+
+We can now access the files linked to the selected sample. To browse the files we use
+the {\tt listFiles()} function. We are interested in the FASTQ files.
+
+<<>>=
+f <- listFiles(inSample, Extensions = ".gz")
+length(f)
+f
+@ 
+
+The R API allows for all the query parameters implemented by the REST API. 
+Here we selected just the *.gz files, which in the context of the {\tt Samples} 
+resource these are only FASTQ files. 
+
+The {\tt Path} entry gives us the complete and unique location of the file(s).
+We can therefore download the file(s) to a local directory preserving the path
+information.
+<<>>=
+outDir <- paste("Sample", Id(inSample), sep = "_")
+outDir
+
+## full location of the files
+f$Path
+@ 
+
+
+We further select the fastq files that contain only R1 or R2 in their name.
+<<>>=
+idx <- grep("_R(1|2)_", Name(f))
+@ 
+
+
+Once the {\tt outDir} is set and we selected the files we want, we know exactly 
+where the files will be located on the disc.
+<<>>=
+floc <- file.path(outDir, f$Path[idx])
+names(floc) <- basename(floc)
+floc
+@
+
+
+Next we download the selected file(s) to the {\tt outDir}. This is done using the
+{\tt getFiles()} method. 
+
+<<eval = FALSE>>=
+getFiles(aAuth, id = Id(f)[idx], destDir = outDir, verbose = FALSE)
+@ 
+
+<<echo = FALSE>>=
+## a bit of caching
+if(any(i <- file.exists(floc))) {
+  ## check the file size for the ones already downloaded 
+  idx <- c(idx[!i], idx[i][file.info(floc[i])$size != f$Size[idx[i]]])
+}
+
+## download the missing files
+if(length(idx))
+  getFiles(aAuth, id = Id(f)[idx], destDir = outDir)
+
+rm(i); idx <- grep("_R(1|2)_", Name(f))
+@ 
+
+We can quickly check if the files were downloaded:
+<<>>=
+file.exists(floc)
+@ 
+
+
+
+\section{Data crunching}
+\label{sec:crunching}
+
+To compute the average Q-scores at each cycle we need to read the FASTQ file in R and
+extract the base qualities for each read. The Bioconductor {\tt ShortRead} library offers
+functionality for this. The wrapping functions used in this computation are 
+shown in Section~\ref{sec:functions}.
+
+<<>>=
+suppressPackageStartupMessages(library(ShortRead))
+qtab <- lapply(floc, getQscoreCounts)
+@ 
+
+One can use the {\tt parallel} package and the {\tt mclapply} function to compute
+{\tt qtab}. This is a perfect scenario for batch processing since we perform 
+the computation on each FASTQ file separately. 
+
+<<eval = FALSE>>=
+library(parallel)
+qtab <- mclapply(floc, getQscoreCounts, mc.cores = 4)
+@ 
+
+If there is more then one FASTQ file per read we need to accumulate the results.
+
+<<>>=
+idxR1 <- grep("_R1_", names(floc), fixed = TRUE)
+idxR2 <- grep("_R2_", names(floc), fixed = TRUE)
+if(length(idxR1) != length(idxR2))
+  stop("Missing files for R1 or R2")
+
+x <- getQscoreStats(cbind(Reduce("+", qtab[idxR1]), Reduce("+", qtab[idxR2])))
+@ 
+
+We can quickly inspect the computed statistics:
+<<>>=
+head(x)
+@ 
+
+
+\subsection{Plotting the Q-score distribution}
+
+We can now generate a simple plot summarizing the Q-score distribution. We save the 
+graph into a local .png file such that we can later upload this file to BaseSpace.
+
+<<echo = FALSE>>=
+ylim <- range(x) + c(-2L, 2L)
+gfile <- file.path(tempdir(), "Qscore_per_cycle.png")
+
+png(file = gfile, width = 1000, height = 500, bg = "transparent")
+plot(x = seq_len(nrow(x)), type = "n", ylim = ylim,
+     xlab = "Cycle", ylab = "Q-score",
+     main = "Q-scores statistics")
+
+sx <- apply(x[, c("5%", "95%")], 2, function(x) smooth.spline(x)$y)
+sx[, "95%"] <- pmax(sx[, "95%"], x[, "median"])
+polygon(c(1L:nrow(x), nrow(x):1L), c(sx[, "95%"], rev(sx[, "5%"])),
+        col = "#CCEBC580", border = NA)
+matpoints(sx, type = "l", lwd = .5, lty = 2, col = "black")
+lines(x[, "mean"], lwd = 2, col = "red")
+lines(x[, "median"], lwd = 2, col = "black")
+
+legend("bottomleft", col = c("black", "red", "#CCEBC580"), lwd = 10,
+       inset = c(.05, .01), cex = 1.2, bty = "o", box.lty = 1, box.lwd = 0,
+       legend = c("Median", "Mean", "5% - 95%"))
+dev.off()
+@ 
+
+\begin{figure}[!ht]
+  \centering 
+  \includegraphics[width=1.05\linewidth]{\Sexpr{gfile}}
+\caption{Mean Q-score at each cycle. The shaded region gives the $5\%$ and $95\%$ bands.}
+\label{fig:qscoreDist}
+\end{figure}
+
+
+
+\section{Storing the results}
+\label{sec:results}
+
+In this section we show how to store the analysis results back in BaseSpace.
+In this example we'll just keep the PNG figure, but we could store any type of
+file/data if necessary. 
+
+To do this we first need to create a new {\tt AppResults} instance (possibly under the
+current project if we have permission to add results to it). Here we assume that we 
+don't have permission to modify the project from where we read the samples. So we'll
+have to create a new project, associate the samples used with it and upload the 
+analysis results.
+
+\subsection{Creating a new project}
+\label{subsec:newproject}
+
+To create a new project we use the {\tt createProject()} method. In this process it is
+a good practice to check whether a project with the same name already exists.
+
+<<>>=
+pname <- "Test Apps"
+
+## shows the name of all projects the user can see 
+Name(myProj)
+
+idx <- which(Name(myProj) %in% pname)
+projId <- if(length(idx) == 0L) {
+  Id(createProject(aAuth, name = pname))
+} else {
+  Id(myProj)[idx]
+}
+@ 
+
+
+We can take a closer look at the (newly created) project:
+<<>>=
+newProj <- Projects(aAuth, id = projId, simplify = TRUE)
+newProj
+@ 
+
+If this project was created before, most likely there are {\tt AppResults} associated 
+with it. We can browse the existing results within this project using the 
+{\tt listAppResults()} method.
+
+
+<<>>=
+listAppResults(newProj)
+@ 
+
+\subsection{Creating a new AppResult}
+\label{subsec:newappresult}
+
+We next need to create a new {\tt AppResults} instance which will hold our analysis data.
+To do this we create a JSON object with a well defined set of fields
+(see {\it Writing back to BaseSpace} for more details).
+
+<<>>=
+ar <- list(Name = "Q-score dsitribution",
+           Description = "Simple stats on the Q-score at each cycle.",
+           "References" = list(Rel = "using",
+             HrefContent = Href(inSample)))
+
+cat(toJSON(ar, pretty = TRUE), "\n")
+@ 
+
+We are now ready to create the {\tt AppResults} instance.
+
+<<>>=
+newResult <- createAppResults(newProj, value = toJSON(ar))
+@ 
+
+If the user doesn't have write access to the current project, then the
+{\tt newResult} object will be {\tt NULL} and an error message from the REST server
+will be shown to the user. In this case we can launch the OAuth2 process with the 
+required scope and prompt the user (this requires the user interacting with a web browser).
+<<>>=
+if(is.null(newResult)) {
+  initializeAuth(aAuth, scope = paste("write project", projId))
+  requestAccessToken(aAuth)
+}
+@ 
+
+
+Assuming that we have the proper permissions, we can inspect the newly created 
+{\tt AppResults} instance associated with our project. 
+<<>>=
+listAppResults(newProj)
+@ 
+
+Please note that at this stage the status of the {\tt AppResults} instance is set 
+to {\it Running}.
+
+\subsection{Uploading the data/files}
+\label{subsec:uploadfiles}
+
+The function used for data/file uploads is {\tt putFiles()}. At the moment this function
+implements only the POST method. Multiple file uploads will be soon supported using 
+the same interface.
+
+To upload the PNG file we need to specify the {\tt AppResults} ID and the file location
+on the disk.
+
+<<>>=
+newFile <- putFiles(aAuth, resultId = Id(newResult), fIn = gfile)
+@ 
+
+If the above command succeeds, the file is uploaded to BaseSpace and a new {\tt Files}
+instance is created for this file.
+<<>>=
+newFile
+@ 
+
+We can check the {\tt UploadStatus} given by the {\tt newFile} and if this is set to 
+{\it Complete}, we can then finalize the session.
+
+<<eval = FALSE>>=
+if(newFile$UploadStatus != "complete")
+  stop("Problem upload the result ...")
+  
+## delete the PNG file from the local storage
+unlink(gfile)
+@ 
+
+%% we don't really do delete the figure, since we need it for generating the document!
+<<echo = FALSE>>=
+if(newFile$UploadStatus != "complete")
+  stop("Problem upload the result ...")
+@ 
+
+To finalize the session we use the {\tt updateAppSessions()} method to set the 
+status of the {\tt AppSessions} to {\it Complete}.
+
+<<>>=
+## Get the session Id
+sessionId <- Id(AppSessions(newResult))
+
+## Complete the session
+invisible(updateAppSessions(aAuth, id = sessionId, status = "complete"))
+@ 
+
+If updating the {\tt AppSessions} is successful the user will receive a confirmation e-mail. 
+
+We can further inspect the {\tt AppResults} to check if the status is properly set.
+<<>>=
+myResults <- listAppResults(newProj)
+myResults
+Status(myResults)
+@ 
+
+
+
+\section{Functions used}
+\label{sec:functions}
+Bellow are the functions used for computing the Q-score statistics in
+Section~\ref{sec:crunching}. We use the {\tt readFastq()} function to read the 
+FASTQ files and {\tt quality()} to extract the base qualities.
+
+<<eval = FALSE>>=
+getQscoreCounts <- function(fIn, maxS = 42L) {
+  ## read the fastq file and keep the qualities 
+  r <- quality(quality(readFastq(fIn, withIds = FALSE)))
+  r_row <- width(r)[[1L]]
+  r_col <- length(r)
+
+  ## transorm the qualities to integers from 2 to maxS
+  x <- as.integer(unlist(r, use.names = FALSE)) - 33L
+  dim(x) <- c(r_row, r_col)
+
+  ## tabulate each row in the matrix
+  qtab <- matrix(0L, nrow = maxS, ncol = r_row,
+                 dimnames = list(paste0("Q", seq_len(maxS)), NULL))
+  for(i in seq_len(r_row)) 
+    qtab[, i] <- tabulate(x[i, ], nbins = maxS)
+  
+  return(qtab)
+}
+@ 
+
+
+<<eval = FALSE>>=
+getQscoreStats <- function(x) {
+  nr <- nrow(x)
+  nc <- ncol(x)
+  qstat <- matrix(0L, nrow = nc, ncol = 4L,
+                  dimnames = list(NULL, c("5%", "median", "95%", "mean")))
+  rleval <- seq_len(nr)
+  for(i in seq_len(nc)) {
+    r <- Rle(values = rleval, lengths = x[, i])
+    qstat[i, ] <- c(quantile(r, probs = c(0.05, .5, 0.95)), mean(r))
+  }
+
+  return(qstat)
+}
+@ 
+
+
+
+\section{Session Information}
+
+The version number of R and packages loaded for generating the vignette were:
+
+<<echo=FALSE,results=tex>>=
+toLatex(sessionInfo())
+@
+
+
+\end{document}
