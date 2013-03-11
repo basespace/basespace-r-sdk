@@ -10,19 +10,31 @@
 \alias{userItem-class}
 
 \alias{Users}
+\alias{Users,missing-method}
 \alias{Users,AppAuth-method}
 \alias{Users,Response-method}
 
 
-\title{Classes \code{"Users"} and \code{"userItem"}}
+\title{\code{Users} objects and resources}
 
 \description{
   Class to manage the Users resource.
 }
 
-\section{Methods}{
+\details{
+  ...
+}
+
+\section{Constructor}{
   \describe{
-    \item{Users}{\code{signature(x = "AppAuth")}: ... }
+    \item{}{
+      \code{Users()}:
+      Instantiates an empty \code{Users} object. Same as \code{new("Users")}.
+    }
+    \item{}{
+      \code{Users(x)}:
+      \code{x} is an AppAuth object. This constructor
+    }
   }
 }
 \references{
@@ -32,24 +44,39 @@
   Adrian Alexa
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\linkS4class{Users}}.
+  \code{\linkS4class{AppAuth}},
+  \code{\linkS4class{Response}}.
 }
 \examples{
-showClass("AppAuth")
+
+## empty object
+Users()
+
+## handle to communicate with BaseSpace server
+data(aAuth)
+
+## Quering the Users resource using the AppAuth handler
+u <- Users(aAuth)
+u
+
+## Accesors
+Id(u)
+Name(u)
+## Using the general '$' accesor
+u$Id
+u$Email # there is no accesor method Email(), so '$' is useful here!
+
+## Quering the resource unsing a Response object
+Users(u) # u is of class Users which extends Response
+
+## specifying a user ID
+Users(aAuth, id = 1463464) # must work if given as an integer(even of mode numeric)
+Users(aAuth, id = "1463464") # must work
+
+#Users(aAuth, id = "660666") # fails since is not the proper user
+
 }
 \keyword{classes}
-\section{Fields}{
-  \describe{
-    \item{\code{client_id}:}{Object of class \code{character} ~~ }
-    \item{\code{client_secret}:}{Object of class \code{character} ~~ }
-    \item{\code{uri}:}{Object of class \code{ServiceURI} ~~ }
-  }
-}
-\section{Class-Based Methods}{
-  \describe{
-    \item{\code{show()}:}{ ~~ }
-  }
-}
+\keyword{methods}

@@ -1,7 +1,7 @@
-############################################################           
+############################################################
 ##  U S E R S
-############################################################           
-## A user is the individual performing the analysis in BaseSpace. 
+############################################################
+## A user is the individual performing the analysis in BaseSpace.
 
 ##EL_USERS <- c("Email", "HrefRuns", "HrefProjects")
 
@@ -10,7 +10,7 @@ setClass("userItem", contains = "Item",
            ## Current user's email address
            Email = "character",
            ## The runs that the user owns or has access to
-           HrefRuns = "character",  
+           HrefRuns = "character",
            ## The projects that the user owns or has access to
            HrefProjects = "character"))
 
@@ -23,9 +23,9 @@ setClass("Users", contains = "Response",
          representation = representation(
            data = "userItem"))
 
-############################################################           
+############################################################
 ## Methods
-############################################################           
+############################################################
 
 ## userResponse methods - do we really need to implement these???
 ##setMethod("Email", "userItem", function(x) x@Email)
@@ -39,15 +39,18 @@ setClass("Users", contains = "Response",
 userItem <- function(...) ItemFromJList("userItem", list(...))
 
 
-## Do we need to treat the case in which the 'id' is vector? 
+## Trivial constructor
+setMethod("Users", "missing", function() new("Users"))
+
 ## Constructor from AppAuth
+## Do we need to treat the case in which the 'id' is vector?
 setMethod("Users", "AppAuth",
-          function(x, id = "current") {            
+          function(x, id = "current") {
             if(length(id) > 1L) {
               warning("Multiple 'id' not handled at the moment. Using the first!")
               id <- id[1L]
             }
-            
+
             .queryResource(x = new("Users", auth = x), what = "users", id = id, simplify = TRUE)
           })
 

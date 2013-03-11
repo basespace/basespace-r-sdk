@@ -1,6 +1,6 @@
 ## for internal use - replacement for file.path
 ## will work as paste(..., sep = "/")
-## could be optimized such that we cannonize the resource 
+## could be optimized such that we cannonize the resource
 ## !!! Do not export !!!
 make_resource <- function(...)  file.path(...)
 
@@ -25,7 +25,8 @@ named_list <- function(lnames = character()) {
 ## @ it retruns a list of object (or one object if simplify = TURE) of the same class as 'x'
 ## !!! Do not export !!!
 .r2I <- c(users = "userItem", runs = "runItem", projects = "projectItem",
-          samples = "sampleItem", appresults = "appResultItem", files = "fileItem")
+          samples = "sampleItem", appresults = "appResultItem",
+          files = "fileItem", genomes = "genomeItem")
 
 .queryResource <- function(x, what, id, simplify) {
   id <- as_id(id)
@@ -35,10 +36,10 @@ named_list <- function(lnames = character()) {
     obj@data <- ItemFromJList(.r2I[what], response)
     return(obj)
   })
-  
-  if(length(id) == 1L && simplify) 
+
+  if(length(id) == 1L && simplify)
     return(res[[1L]])
-  
+
   names(res) <- id
   return(res)
 }
@@ -46,10 +47,10 @@ named_list <- function(lnames = character()) {
 ## .listResource <- function(x, what, id, simplify) {
 ##   id <- as_id(id)
 ##   res <- lapply(id, function(i) ItemFromJList(.r2I[what], x$doGET(resource = make_resource(what, i))))
-  
-##   if(length(id) == 1L && simplify) 
+
+##   if(length(id) == 1L && simplify)
 ##     return(res[[1L]])
-  
+
 ##   names(res) <- id
 ##   return(res)
 ## }
