@@ -2,7 +2,11 @@ library(BaseSpaceR)
 
 
 data(aAuth)
+## we can see if the handle can connect to BaseSpace server
+hasAccess(aAuth)
+## printing the object gives more information
 aAuth
+
 
 ## we could make a generic and method hasAccess(aAuth) == aAuth#has_access()
 
@@ -21,18 +25,20 @@ u
 ## Accesors
 Id(u)
 Name(u)
-## Using the general '$' accesor
+## Using the general '$' accesor, same interface as 'list'
 u$Id
 u$Email # there is no accesor method Email(), so '$' is useful here!
+u$fakeElement # returns NULL (to keep the same semantic as 'list')
 
 ## Quering the resource unsing a Response object
 Users(u) # u is of class Users which extends Response
 
-## specifying a user ID
+## Specifying a user ID. ID can be specify either as an integer or as a string
 Users(aAuth, id = 1463464) # must work if given as an integer(even of mode numeric)
 Users(aAuth, id = "1463464") # must work
 
-#Users(aAuth, id = "660666") # fails since is not the proper user
+## This should fail since is not the current user
+tryCatch(Users(aAuth, id = "660666"), error = function(e) cat("No access to this user data!\n"))
 
 
 
@@ -40,22 +46,27 @@ Users(aAuth, id = "1463464") # must work
 ## GENOMES
 
 g <- listGenomes(aAuth)
+g$SpeciesName
+
+## using the REST API query parameters
+listGenomes(aAuth, Limit = 2)
+g <- listGenomes(aAuth, Offset = 5, Limit = 2, SortBy = "Build")
 g
 
-listGenomes(aAuth, Limit = 2)
-listGenomes(aAuth, Offset = 5, SortBy = "Build")
-
-
+## get the details for the listed geneomes
 Genomes(g)
-Genomes(aAuth, id = 5) # same as Genomes(app, 5)
-Genomes(aAuth, id = c(5, 1, 110))
+
+## get the genomes based on their ID
+Genomes(aAuth, id = 4)
+## if the ID is missing thean NULL is returned for that particular ID
+Genomes(aAuth, id = c(4, 1, 110))
+
+
 
 
 
 ########################################
 ## RUNS
-
-listRuns()
 
 r <- listRuns(aAuth)
 r
@@ -64,10 +75,12 @@ listRuns(aAuth, Statuses = "Failed") # no faild runs
 listRuns(aAuth, Statuses = "Complete")
 listRuns(aAuth, SortBy = "Id", SortDir="Desc")
 
+Runs(r)[[1]]
+
+
 Runs(aAuth, id = 101102)
 Runs(r)
 
-## BUG
 Runs(aAuth, id = c(Id(r), "11111")) # the third element must be NULL
 
 
@@ -76,9 +89,11 @@ Runs(aAuth, id = c(Id(r), "11111")) # the third element must be NULL
 ########################################
 ## PROJECTS
 
-listProjects(aAuth)
+p <- listProjects(aAuth)
+p
 
 Projects(aAuth, id = c(2, 12, 1012))
+Projects(p)
 
 ## Make a new project ...
 createProject(aAuth) # must fail!
@@ -96,27 +111,21 @@ createProject(aAuth, name = "My Project Y")
 ## SAMPLES
 
 ## list all the available projects and select one
-pid <- sapply(listProjects(aAuth)$Items, "[[", "Id")
-pid
-pid <- pid[1]
-## check the details of the project
-str(listProjects(aAuth, id = pid))
-
-## most probably we need read access to the selected project
-##initializeAuth(aAuth, scope = paste("browse global, read project", pid))
-##requestAccessToken(aAuth)
+p <- Projects(listProjects(aAuth, Limit = 1), simplify = TRUE)
+p
 
 ## list the samples available in this project
-str(listSamples(aAuth, projectId = pid))
-s <- sapply(listSamples(aAuth, projectId = pid)$Items, "[[", "Id")
+allS <- listSamples(aAuth, projectId = Id(p))
+##  we can call listSamples() directly using 'p'
+identical(allS, listSamples(p))
 
-str(listSamples(aAuth, id = s[1]))
 
-str(listSamples(aAuth, id = s[1])$AppSession)
-str(listSamples(aAuth, id = s[2])$AppSession)
-str(listSamples(aAuth, id = s[length(s)])$AppSession)
+oneS <- listSamples(aAuth, projectId = Id(p), Limit = 1)
+oneS
+Samples(oneS) # list with one Samples object
+Samples(oneS, simplify = TRUE) # Samples object
 
-str(listSamples(aAuth, id = s[1])$Id)
+
 
 
 
@@ -125,23 +134,21 @@ str(listSamples(aAuth, id = s[1])$Id)
 ########################################
 ## VARIANTS
 
-## Find the Id of the appresult which the app would like to find the variants in.
-arid <- sapply(listResults(aAuth, projectId = 2)$Items, "[[", "Id")[1]
-arid
-str(listResults(aAuth, id = arid))
 
-## Use GET: appresults/{id}/files, search for the vcf extension
-## and find the Id of the specific vcf file within that appresult.
-vcfs <- listFiles(aAuth, resultId = arid, Extensions = ".vcf")$Items
-fid <- sapply(vcfs, "[[", "Id")
+## get the Ids of some VCF files
+reseq <- listAppResults(aAuth, projectId = 12, Limit = 1)
+AppResults(reseq)
 
-## Use GET: files/{id} and within that there will be an `HrefVariants` field
-## which shows the Id of the variant for this appresult.
 
-## we can download the file ...
-x <- getFiles(aAuth, id = fid)
-## look at the file content
-invisible(lapply(x, function(f) message(rawToChar(f$Content))))
+## find the Id of the VCF files within that appresult.
+vcfs <- listFiles(AppResults(reseq), Extensions = ".vcf")
+Name(vcfs)
+Id(vcfs)
+vcfs
+
+
+getVariantSet(aAuth, Id(vcfs)[1])
+
 
 ## Or we can get the Variant id and pull the variants out from the DB.
 ##vid <- sapply(listFiles(aAuth, id = fid), "[[", "HrefVariants") # this give the full resource/path ....
@@ -159,31 +166,40 @@ v <- getVariants(aAuth, vid[1], chrom = "chr", EndPos = 10000000L, Limit = 1000L
 
 
 
+## Use GET: files/{id} and within that there will be an `HrefVariants` field
+## which shows the Id of the variant for this appresult.
+
+## we can download the file ...
+x <- getFiles(aAuth, id = fid)
+## look at the file content
+invisible(lapply(x, function(f) message(rawToChar(f$Content))))
+
+
+
 
 
 ########################################
 ## Coverage
 
 ## get the Ids of some BAM files
-arid <- sapply(listResults(aAuth, projectId = 12)$Items, "[[", "Id")[1]
-arid
-str(listResults(app, id = arid))
+reseq <- listAppResults(aAuth, projectId = 12, Limit = 1)
+AppResults(reseq)
+
 
 ## find the Id of the bam files within that appresult.
-bams <- listFiles(aAuth, resultId = arid, Extensions = ".bam")$Items
-bid <- sapply(bams, "[[", "Id")
-bid
-
+bamFiles <- listFiles(AppResults(reseq), Extensions = ".bam")
+Name(bamFiles)
+Id(bamFiles)
+bamFiles
 
 ## get a Read access to the AppResult
 ##initializeAuth(aAuth, scope = paste("browse global, read project", 12))
 ##requestAccessToken(aAuth)
 
+getCoverageStats(aAuth, id = Id(bamFiles), "phix")
+readcov <- getCoverage(aAuth, id = Id(bamFiles), "phix", StartPos = 1L, EndPos = 5e3L)[[1]]
 
-##getFiles(aAuth, id = bid, destDir = "oneBam", verbose = TRUE)
-getCoverageStats(aAuth, id = bid, "phix")
 
-readcov <- getCoverage(aAuth, id = bid, "phix", StartPos = 1L, EndPos = 5e3L)[[1]]
 ##barplot(readcov$MeanCoverage, col = "lightblue1", border = NA)
 plot(readcov$MeanCoverage, col = "lightblue2", type = "l", lwd = 2)
 

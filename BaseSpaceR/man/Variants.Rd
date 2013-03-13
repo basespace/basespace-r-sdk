@@ -55,19 +55,23 @@ getVariants(x, ...)
 data(aAuth)
 
 ## get the ids of VCF files (within an AppResult? )
-##...
+reseq <- listAppResults(aAuth, projectId = 12, Limit = 1)
+AppResults(reseq)
 
-## use the file Id ... 
-#vid <- fid
-#getVariantSet(aAuth, vid)
+vcfs <- listFiles(AppResults(reseq), Extensions = ".vcf")
+Name(vcfs)
+Id(vcfs)
+vcfs
+
+\dontrun{
+## variant metadata
+getVariantSet(aAuth, vid)
 
 ## get the variants
-#getVariants(aAuth, vid, chrom = "chr")
+getVariants(aAuth, vid, chrom = "chr")
 
-#v <- getVariants(aAuth, vid, chrom = "chr", EndPos = 1000000L, Limit = 5)
-#v$DisplayedCount
-#str(v)
-#v <- getVariants(aAuth, vid, chrom = "chr", EndPos = 10000000L, Limit = 1000L)
-
+v <- getVariants(aAuth, vid, chrom = "chr", EndPos = 1000000L, Limit = 5)
+v
+}
 }
 \keyword{misc}

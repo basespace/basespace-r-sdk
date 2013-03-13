@@ -41,6 +41,11 @@ projectCollection <- function(...) {
 
 ###################################
 ## Selecting Projects
+
+## Trivial constructor
+setMethod("Projects", "missing",  function() new("Projects"))
+
+## Constructor from AppAuth
 setMethod("Projects", "AppAuth",
           function(x, id, simplify = FALSE) {
             ## if 'id' is missing, first call listProjects to get all the Ids. 

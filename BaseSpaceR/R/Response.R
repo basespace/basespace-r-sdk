@@ -208,7 +208,10 @@ setMethod("length", "Item", function(x) 1L)
 ## generics for all slots in the objects wxtending Item 
 ## 'list' like operator that will be pushed through the interface
 ## for Item is just a slot() wrapper 
-setMethod("element", "Item", function(x, name) slot(x, name = name))
+setMethod("element", "Item",
+          function(x, name) {
+            tryCatch(slot(x, name = name), error = function(e) NULL)
+          })
 setMethod("$", "Item", function(x, name) element(x, name = name))
 
 
@@ -251,7 +254,7 @@ setMethod("show", "Collection",
 ## For collection, '$'/element will work only on Items. '$' it is an Item accessor!
 setMethod("element", "Collection",
           function(x, name) {
-            s <- lapply(x@Items, slot, name = name)
+            s <- lapply(x@Items, function(el) tryCatch(slot(el, name = name), error = function(e) NULL))
             if(max(unlist(lapply(s, length), use.names = FALSE)) > 1L)
               return(s)
             return(unlist(s, use.names = FALSE))

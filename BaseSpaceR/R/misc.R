@@ -33,6 +33,8 @@ named_list <- function(lnames = character()) {
   res <- lapply(id, function(i) {
     obj <- x
     response <- auth(x)$doGET(resource = make_resource(what, i))
+    if(is.null(response))
+      return(NULL)
     obj@data <- ItemFromJList(.r2I[what], response)
     return(obj)
   })

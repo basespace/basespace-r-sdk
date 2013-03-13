@@ -52,6 +52,11 @@ sampleCollection <- function(...) {
 
 ###################################
 ## Selecting Samples
+
+## Trivial constructor
+setMethod("Samples", "missing",  function() new("Samples"))
+
+## Constructor from AppAuth
 setMethod("Samples", "AppAuth",
           function(x, id, simplify = FALSE) {
             ## 'id' must be specified !!! 

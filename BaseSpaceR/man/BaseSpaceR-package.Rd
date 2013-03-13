@@ -43,7 +43,14 @@
 }
 
 \seealso{
-  \code{\link{AppAuth-class}}, etc...
+  \code{\link{AppAuth-class}} for details on how to establish a
+  connection with the BaseSpace server.
+  \code{\link{Response-class}} for details on the structure of the
+  objects and the interface used by the API. 
+  \code{\link{Users-class}}, \code{\link{Genomes-class}},
+  \code{\link{Runs-class}}, \code{\link{Projects-class}}, \code{\link{Samples-class}},
+  \code{\link{Files-class}} and \code{\link{AppResults-class}} for
+  details on various resources supported by the API.
 }
 
 

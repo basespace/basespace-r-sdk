@@ -47,6 +47,11 @@ fileCollection <- function(...) {
 
 ###################################
 ## Selecting Files
+
+## Trivial constructor
+setMethod("Files", "missing",  function() new("Files"))
+
+## Constructor from AppAuth
 setMethod("Files", "AppAuth", 
           function(x, id, simplify = FALSE) {
             ## 'id' must be specified

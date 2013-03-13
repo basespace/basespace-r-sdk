@@ -106,11 +106,8 @@
   Modeled after the \code{Response} defined in the REST API.
 }
 
-\section{Objects from the Class}{
-  Virtual class..
-}
 
-\section{Accessors}{
+\section{Item Accessors}{
   In the following \code{x} is an Item object.
 
   \describe{
@@ -156,8 +153,9 @@
       the complete URL within the BaseSpace dashboard.
     }
   }
+}
 
-
+\section{Collection Accessors}{
   In the following \code{x} is a Collection object.
   \describe{
     \item{}{
@@ -214,8 +212,6 @@
 
     \item{show}{Prints the object... }
     \item{as.list}{List representation of the object... }
-
-    \item{uri}{\code{signature(x = "Item")}: ... }
   }
 }
 

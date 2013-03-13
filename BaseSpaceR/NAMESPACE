@@ -28,13 +28,15 @@ export(## Non-generic functions:
        uri,
        ##GET, POST, POSTForm, ## do not export at a later point ...
        ## AppAuth
-       initializeAuth, requestAccessToken,
+       initializeAuth, requestAccessToken, hasAccess,
+       
        ## Item
        Id, Name, Href, DateCreated, UserOwnedBy, Status, HrefBaseSpaceUI,
        ## Collection
        Items, DisplayedCount, TotalCount, Offset, Limit, SortDir, SortBy,
        ## Response
        auth,
+
        ## Users
        Users, userItem, # we might not export some of these as a later point
        ## Runs
@@ -62,7 +64,7 @@ exportMethods(
               ## Methods for generics
               uri,
               ##GET, POST,
-              initializeAuth, requestAccessToken,
+              initializeAuth, requestAccessToken, hasAccess,
               ## Item
               Id, Name, Href, DateCreated, UserOwnedBy, Status, HrefBaseSpaceUI,
               ## Collection

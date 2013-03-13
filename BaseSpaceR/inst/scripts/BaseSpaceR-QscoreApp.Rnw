@@ -22,7 +22,7 @@
 
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string = miscUtils}
+\SweaveOpts{prefix.string = BaseSpaceR}
 
 
 \title{\vspace*{-6ex} Sample App - Mean Q-score per cycle}
@@ -81,7 +81,7 @@ getQscoreStats <- function(x) {
 
 This document describes a simple working session using {\tt BaseSpaceR}. 
 For more details on the functions used throughout this document please see the 
-package vignette - BaseSpaceR. 
+package main vignette - BaseSpaceR. 
 
 A typical BaseSpace session can be divided into the following steps:
 \begin{itemize}
@@ -91,10 +91,9 @@ A typical BaseSpace session can be divided into the following steps:
 \item Uploading results back to BaseSpace
 \end{itemize}
 
-In this sample session we'll show how to reach to sample data, select the
-FASTQ file(s) associated with the chosen sample, compute and plot the average
-Q-score per cycle, create an {\tt AppResults} instance and link the generated 
-image to it. 
+In this sample session we'll show how to explore the project and sample data, select
+the FASTQ file(s) associated with the chosen sample, compute and plot Q-score statistics 
+at each cycle, create an {\tt AppResults} instance and link the generated figure to it. 
 
 <<>>=
 library(BaseSpaceR)
@@ -107,9 +106,10 @@ library(BaseSpaceR)
 The first step is the authentication of the client application with the BaseSpace 
 REST server.  The authentication and communication between the client and the server is
 handled by an {\tt AppAuth} instance. There are two ways to create an {\tt AppAuth}
-instance. The easiest is to provide a pre-generated access token. Assuming you have 
-access to such a token stored as a character string in {\tt app\_access\_token}, 
-the handler can be created as follows:
+instance. The easiest is to provide a pre-generated access token, see help for 
+{\tt AppAuth} and the main vignette for more details on this.
+Assuming the user has access to such a token, stored as a character string 
+in {\tt app\_access\_token} variable, the handler can be created as follows:
 
 <<>>=
 aAuth <- AppAuth(access_token = app_access_token)
@@ -124,7 +124,7 @@ interaction is required. Authentication through the OAuth2 process is out of the
 of this document and we'll not show it here.
 
 Please note that for the purpose of this document one needs an access token with the 
-following scope: {\tt create~projects,~write~global}
+following scope: {\tt create~projects,~write~global}. 
 
 
 \section{Accessing the data}
@@ -134,7 +134,7 @@ Now that our client App is authenticated with the server we can start exploring 
 data. One of the first steps is to inspect the resources available to the user under
 the current scope (associated with the access token).  
 
-\subsection{Browse  the available projects}
+\subsection{Browsing available projects}
 \label{subsec:browse}
 
 Let's assume we need to browse all the projects accessible to the user. 
@@ -163,7 +163,7 @@ selProj
 @ 
 
 
-\subsection{Select samples}
+\subsection{Selecting samples}
 \label{subsec:browsesampl}
 
 Once we have decided the project we want to work on, we can browse the samples associated
@@ -196,16 +196,16 @@ inSample
 
 As we can see, the {\tt inSample} object contains detailed information on the 
 selected sample. For example, the {\tt NumReadsRaw} entry contains the number of 
-read pairs (in this case) available in this sample. We can access every entry given 
-by the Samples resource using the {\tt '\$'} operator. This operator works for every 
-resource.
+read pairs available in the chosen sample. We can access each entry in the Samples
+resource using the {\tt '\$'} operator. Please note that the access operator 
+{\tt '\$'}, works for every {\tt Response} object.
 
 <<>>=
 inSample$NumReadsRaw
 @ 
 
 
-\subsection{Select and access files}
+\subsection{Selecting and accessing files}
 \label{subsec:files}
 
 We can now access the files linked to the selected sample. To browse the files we use
@@ -217,40 +217,35 @@ length(f)
 f
 @ 
 
-The R API allows for all the query parameters implemented by the REST API. 
-Here we selected just the *.gz files, which in the context of the {\tt Samples} 
-resource these are only FASTQ files. 
+The R API is design such that the user can use any query parameters implemented by
+the REST API. Here we selected just the *.gz files, which in the context of the
+{\tt Samples} resource these are only FASTQ files. 
+The {\tt Path} element gives us the relative location of the file(s). We can use this
+to uniquely identify the files.
 
-The {\tt Path} entry gives us the complete and unique location of the file(s).
-We can therefore download the file(s) to a local directory preserving the path
-information.
 <<>>=
-outDir <- paste("Sample", Id(inSample), sep = "_")
-outDir
-
-## full location of the files
-f$Path
+f$Path # full location of the files
 @ 
-
 
 We further select the fastq files that contain only R1 or R2 in their name.
 <<>>=
 idx <- grep("_R(1|2)_", Name(f))
 @ 
 
+We can therefore download the selected file(s) to a local directory preserving
+the path information.
 
-Once the {\tt outDir} is set and we selected the files we want, we know exactly 
-where the files will be located on the disc.
 <<>>=
+outDir <- paste("Sample", Id(inSample), sep = "_")
 floc <- file.path(outDir, f$Path[idx])
 names(floc) <- basename(floc)
 floc
 @
 
 
-Next we download the selected file(s) to the {\tt outDir}. This is done using the
-{\tt getFiles()} method. 
-
+Next we download the selected file(s) to the {\tt outDir} (this might take a while, 
+depending on the number of files selected and the speed of the connection).
+Method {\tt getFiles()} is used for downloading the data stream. 
 <<eval = FALSE>>=
 getFiles(aAuth, id = Id(f)[idx], destDir = outDir, verbose = FALSE)
 @ 
@@ -280,12 +275,12 @@ file.exists(floc)
 \label{sec:crunching}
 
 To compute the average Q-scores at each cycle we need to read the FASTQ file in R and
-extract the base qualities for each read. The Bioconductor {\tt ShortRead} library offers
-functionality for this. The wrapping functions used in this computation are 
-shown in Section~\ref{sec:functions}.
+extract the base qualities for each read. The Bioconductor {\tt ShortRead} library
+offers tools for this. The functions used in this computation, {\tt getQscoreCounts()}
+and {\tt getQscoreStats()} are shown in Section~\ref{sec:functions}.
 
 <<>>=
-suppressPackageStartupMessages(library(ShortRead))
+library(ShortRead)
 qtab <- lapply(floc, getQscoreCounts)
 @ 
 
@@ -295,10 +290,11 @@ the computation on each FASTQ file separately.
 
 <<eval = FALSE>>=
 library(parallel)
-qtab <- mclapply(floc, getQscoreCounts, mc.cores = 4)
+qtab <- mclapply(floc, getQscoreCounts, mc.cores = length(floc))
 @ 
 
-If there is more then one FASTQ file per read we need to accumulate the results.
+If the read pairs are spread across multiple FASTQ files, we have to aggregate the
+counts for both R1 and R2.
 
 <<>>=
 idxR1 <- grep("_R1_", names(floc), fixed = TRUE)
@@ -315,7 +311,7 @@ head(x)
 @ 
 
 
-\subsection{Plotting the Q-score distribution}
+\subsection{Plotting Q-score statistics}
 
 We can now generate a simple plot summarizing the Q-score distribution. We save the 
 graph into a local .png file such that we can later upload this file to BaseSpace.
@@ -337,8 +333,8 @@ matpoints(sx, type = "l", lwd = .5, lty = 2, col = "black")
 lines(x[, "mean"], lwd = 2, col = "red")
 lines(x[, "median"], lwd = 2, col = "black")
 
-legend("bottomleft", col = c("black", "red", "#CCEBC580"), lwd = 10,
-       inset = c(.05, .01), cex = 1.2, bty = "o", box.lty = 1, box.lwd = 0,
+legend("bottomleft", col = c("black", "red", "#CCEBC580"), 
+       lwd = 10, inset = c(.05, .01), cex = 1.2, bty = "n",
        legend = c("Median", "Mean", "5% - 95%"))
 dev.off()
 @ 
@@ -444,7 +440,7 @@ listAppResults(newProj)
 Please note that at this stage the status of the {\tt AppResults} instance is set 
 to {\it Running}.
 
-\subsection{Uploading the data/files}
+\subsection{Uploading data/files}
 \label{subsec:uploadfiles}
 
 The function used for data/file uploads is {\tt putFiles()}. At the moment this function

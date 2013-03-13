@@ -47,6 +47,11 @@ runCollection <- function(...) {
 
 ##############################
 ## Selecting Runs - returns a named R list of Runs objects
+
+## Trivial constructor
+setMethod("Runs", "missing", function() new("Runs"))
+
+## Constructor from AppAuth
 setMethod("Runs", "AppAuth",
           function(x, id, simplify = FALSE) {
             ## if 'id' is missing, first call listRuns to get all possible Ids. 

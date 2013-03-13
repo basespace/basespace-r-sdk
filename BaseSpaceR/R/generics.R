@@ -25,6 +25,8 @@ if(!isGeneric("requestAccessToken"))
   setGeneric("requestAccessToken", function(x, ...) standardGeneric("requestAccessToken"))
 if(!isGeneric("initializeAuth"))
   setGeneric("initializeAuth", function(x, ...) standardGeneric("initializeAuth"))
+if(!isGeneric("hasAccess"))
+  setGeneric("hasAccess", function(x, ...) standardGeneric("hasAccess"))
 
 
 

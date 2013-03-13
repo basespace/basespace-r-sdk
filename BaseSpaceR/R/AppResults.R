@@ -43,6 +43,11 @@ appResultCollection <- function(...) {
 
 ###################################
 ## Selecting AppResults
+
+## Trivial constructor
+setMethod("AppResults", "missing",  function() new("AppResults"))
+
+## Constructor from AppAuth
 setMethod("AppResults", "AppAuth",
           function(x, id, simplify = FALSE) {
             ## 'id' must be specified

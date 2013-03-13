@@ -12,18 +12,22 @@
 \alias{requestAccessToken,AppAuth-method}
 \alias{requestAccessToken}
 
+\alias{hasAccess,AppAuth-method}
+\alias{hasAccess}
 
-\title{Class \code{"AppAuth"}}
+
+\title{\code{AppAuth} class}
 
 \description{
-  Class to manage the App credentials.
+  Class to manage the App permissions and communication with the server.
 }
+
 
 \section{Methods}{
   \describe{
     \item{initializeAuth}{\code{signature(x = "AppAuth")}: ... }
     \item{requestAccessToken}{\code{signature(x = "AppAuth")}: ... }
-    \item{updateAppSessions}{\code{signature(x = "AppAuth")}: ... }
+    \item{hasAccess}{\code{signature(x = "AppAuth")}: ... }
   }
 }
 \references{
@@ -33,7 +37,6 @@
   Adrian Alexa
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
   \code{\linkS4class{ServiceURI}}.
@@ -42,27 +45,9 @@
 showClass("AppAuth")
 
 data(aAuth)
+aAuth
 
+hasAccess(aAuth)
 }
 \keyword{classes}
-\section{Fields}{
-  \describe{
-    \item{\code{client_id}:}{Object of class \code{character} ~~ }
-    \item{\code{client_secret}:}{Object of class \code{character} ~~ }
-    \item{\code{uri}:}{Object of class \code{ServiceURI} ~~ }
-    \item{\code{response}:}{Object of class \code{list} ~~ }
-    \item{\code{curl_handle}:}{Object of class \code{CURLHandleORNULL} ~~ }
-    \item{\code{access_token}:}{Object of class \code{character} ~~ }
-  }
-}
-\section{Class-Based Methods}{
-  \describe{
-    \item{\code{dup_handle(headerFields)}:}{ ~~ }
-    \item{\code{requestAccessToken(resource)}:}{ ~~ }
-    \item{\code{show()}:}{ ~~ }
-    \item{\code{doPOST(..., headerFields, postbody)}:}{ ~~ }
-    \item{\code{initializeAuth(scope, resource)}:}{ ~~ }
-    \item{\code{doGET(...)}:}{ ~~ }
-    \item{\code{set_handle()}:}{ ~~ }
-  }
-}
+\keyword{methods}

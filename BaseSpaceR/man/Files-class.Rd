@@ -11,6 +11,7 @@
 \alias{FilesSummary-class}
 \alias{Files-class}
 \alias{Files}
+\alias{Files,missing-method}
 \alias{Files,AppAuth-method}
 \alias{Files,FilesSummary-method}
 
@@ -27,18 +28,12 @@
 
 
 
-\title{Classes \code{"Files"}, \code{"fileItem"} and \code{"fileCollection"}}
+\title{\code{Files} and \code{FilesSummary} objects}
 
 \description{
-  Classes and methods to hadle the Files resource.
+  Classes and methods to handle the Files resource.
 }
 
-\section{Methods}{
-  \describe{
-    \item{Files}{\code{signature(x = "AppAuth")}: ... }
-    \item{listFiles}{\code{signature(x = "AppAuth")}: ... }
-  }
-}
 \references{
   https://developer.basespace.illumina.com/docs/content/documentation/rest-api/api-reference
 }
@@ -46,24 +41,14 @@
   Adrian Alexa
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\linkS4class{Users}} and \code{\linkS4class{Projects}}.
+  \code{\linkS4class{AppAuth}}, \code{\linkS4class{Runs}},
+  \code{\linkS4class{Samples}} and \code{\linkS4class{AppResults}}.
 }
+
 \examples{
-showClass("AppAuth")
+showClass("Files")
 }
 \keyword{classes}
-\section{Fields}{
-  \describe{
-    \item{\code{client_id}:}{Object of class \code{character} ~~ }
-    \item{\code{client_secret}:}{Object of class \code{character} ~~ }
-    \item{\code{uri}:}{Object of class \code{ServiceURI} ~~ }
-  }
-}
-\section{Class-Based Methods}{
-  \describe{
-    \item{\code{show()}:}{ ~~ }
-  }
-}
+\keyword{methods}

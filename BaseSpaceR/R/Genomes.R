@@ -42,6 +42,11 @@ genomeCollection <- function(...) {
 
 ##############################
 ## Selecting Genomes
+
+## Trivial constructor
+setMethod("Genomes", "missing", function() new("Genomes"))
+
+## Constructor from AppAuth
 setMethod("Genomes", "AppAuth",
           function(x, id, simplify = FALSE) {
             ## if 'id' is missing, first call Genomes to get all the Ids. 

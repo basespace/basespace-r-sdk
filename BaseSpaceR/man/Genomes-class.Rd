@@ -11,6 +11,7 @@
 \alias{GenomesSummary-class}
 \alias{Genomes-class}
 \alias{Genomes}
+\alias{Genomes,missing-method}
 \alias{Genomes,AppAuth-method}
 \alias{Genomes,GenomesSummary-method}
 
@@ -19,43 +20,79 @@
 \alias{listGenomes,Response-method}
 
 
-\title{Classes \code{"Genomes"}, \code{"genomeItem"} and \code{"genomeCollection"}}
+\title{\code{Genomes} and \code{GenomesSummary} objects}
 
 \description{
-  Classes and methods to hadle the Genomes resource.
+  Classes and methods to handle the Genomes resource.
 }
 
-\section{Methods}{
+
+\section{Browsing}{
+  \code{listGenomes(x, ...)} lists all the available genomes, returning
+  only a small summary for each genome.
   \describe{
-    \item{Genomes}{\code{signature(x = "AppAuth")}: ... }
-    \item{listGenomes}{\code{signature(x = "AppAuth")}: ... }
+    \item{x}{is an \code{AppAuth} object.}
+    \item{...}{Parameters supported by the REST API, specified as
+      \code{name = value}. For example,
+      \code{listGenomes(aAuth, Offset = 5, Limit = 2)}
+    }
   }
 }
+
+\section{Constructor}{
+  \describe{
+    \item{}{
+      \code{Genomes()}:
+      Instantiates an empty \code{Genomes} object. Same as \code{new("Genomes")}.
+    }
+    \item{}{
+      \code{Genomes(x, id)}:
+      \code{x} is an \code{AppAuth} object.
+      \code{id} is either and integer or a character string storing an
+      integer. \code{id} can have length larger that 1.
+    }
+    \item{}{
+      \code{Genomes(x)}:
+      \code{x} is an \code{GenomesSummary} object.
+    }
+  }
+}
+
+
 \references{
   https://developer.basespace.illumina.com/docs/content/documentation/rest-api/api-reference
 }
+
 \author{
   Adrian Alexa
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
-  \code{\linkS4class{Users}}, \code{\linkS4class{Response}}.
+  \code{\linkS4class{AppAuth}}, \code{\linkS4class{Response}}.
 }
+
 \examples{
-showClass("AppAuth")
+
+data(aAuth)
+
+## list all available genomes
+g <- listGenomes(aAuth)
+g$SpeciesName
+
+## using the REST API query parameters
+listGenomes(aAuth, Limit = 2)
+g <- listGenomes(aAuth, Offset = 5, Limit = 2, SortBy = "Build")
+g
+
+## get the details for the listed geneomes
+Genomes(g)
+
+## get the genomes based on their ID
+Genomes(aAuth, id = 4)
+## if the ID is missing thean NULL is returned for that particular ID
+Genomes(aAuth, id = c(4, 1, 110))
+
 }
 \keyword{classes}
-\section{Fields}{
-  \describe{
-    \item{\code{client_id}:}{Object of class \code{character} ~~ }
-    \item{\code{client_secret}:}{Object of class \code{character} ~~ }
-    \item{\code{uri}:}{Object of class \code{ServiceURI} ~~ }
-  }
-}
-\section{Class-Based Methods}{
-  \describe{
-    \item{\code{show()}:}{ ~~ }
-  }
-}
+\keyword{methods}
+

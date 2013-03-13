@@ -46,3 +46,4 @@
 showClass("ServiceURI")
 }
 \keyword{classes}
+\keyword{methods}

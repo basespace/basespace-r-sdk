@@ -226,6 +226,7 @@ AppAuth <- function(client_id = character(), client_secret = character(),
 ## User level function for starting the OAuth process and obtaining the access tocken
 setMethod("requestAccessToken", "AppAuth", function(x, ...) x$requestAccessToken(...))
 setMethod("initializeAuth", "AppAuth", function(x, ...) x$initializeAuth(...))
+setMethod("hasAccess", "AppAuth", function(x) x$has_access())
 
 
 
