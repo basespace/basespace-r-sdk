@@ -2,7 +2,7 @@ Package: BaseSpaceR
 Title: R SDK for BaseSpace RESTful API
 Description: R SDK for developing scipts and applications based on the 
 	     Illumina's BaseSpace cloud coumputing environment. 
-Version: 0.99.0
+Version: 0.99.02
 Author: Adrian Alexa
 Maintainer: Adrian Alexa <aalexa@illumina.com>
 biocViews: Infrastructure, DataRepresentation

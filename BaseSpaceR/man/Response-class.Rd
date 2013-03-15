@@ -113,7 +113,7 @@
   \describe{
     \item{}{
       \code{$}:
-      The \code{$} operator can be used to access the class slots. When
+      The \code{$} operator can be used to access the Item elements. When
       \code{x} is an Item object this is equivalet to \code{@}. But you
       can think at it as user level operator. Unlike \code{@} the
       replace method is not implemented for \code{$}.

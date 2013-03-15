@@ -6,5 +6,5 @@
 
   ## address bug in Windows RCurl
   if(.Platform$OS.type == "windows")
-    options(RCurlOptions = c(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"), verbose = TRUE))
+    options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"), verbose = TRUE))
 }
